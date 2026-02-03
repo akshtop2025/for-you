@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Be My Valentine ❤️</title>
+<title>Valentine ❤️</title>
 
 <style>
-/* ---------------- BODY ---------------- */
 body{
     margin:0;
     height:100vh;
@@ -19,21 +18,30 @@ body{
     text-align:center;
 }
 
-/* ---------------- CARD ---------------- */
+/* card */
 .card{
     background:#fff;
     padding:50px;
-    border-radius:20px;
+    border-radius:25px;
     box-shadow:0 15px 40px rgba(0,0,0,.2);
-    z-index:2;
-    position:relative;
 }
 
-h1{
-    color:#e91e63;
+/* couple name (hidden initially) */
+.couple{
+    display:none;
+    font-size:32px;
+    font-weight:bold;
+    color:#ff4d6d;
+    margin-bottom:15px;
+    animation: pop 1s ease;
 }
 
-/* ---------------- BUTTONS ---------------- */
+@keyframes pop{
+    0%{transform:scale(0); opacity:0}
+    60%{transform:scale(1.3)}
+    100%{transform:scale(1); opacity:1}
+}
+
 button{
     padding:12px 32px;
     border:none;
@@ -41,16 +49,11 @@ button{
     font-size:18px;
     cursor:pointer;
     margin:10px;
-    transition:.2s;
 }
 
 #yesBtn{
     background:#e91e63;
     color:#fff;
-}
-
-#yesBtn:hover{
-    transform:scale(1.1);
 }
 
 #noBtn{
@@ -59,25 +62,22 @@ button{
     position:fixed;
 }
 
-/* ---------------- MESSAGE ---------------- */
 .message{
     display:none;
-    margin-top:20px;
     font-size:22px;
+    margin-top:15px;
     color:#e91e63;
-    animation: pop .6s ease;
 }
 
-@keyframes pop{
-    from{transform:scale(0)}
-    to{transform:scale(1)}
+.kiss{
+    width:180px;
+    display:none;
+    margin-top:10px;
 }
 
-/* ---------------- HEART RAIN ---------------- */
+/* hearts */
 .heart{
     position:fixed;
-    color:#ff4d6d;
-    font-size:20px;
     animation: fall linear forwards;
 }
 
@@ -87,40 +87,39 @@ button{
         opacity:0;
     }
 }
-
-/* ---------------- KISS GIF ---------------- */
-.kiss{
-    width:180px;
-    margin-top:15px;
-    display:none;
-    animation: pop .5s ease;
-}
 </style>
 </head>
 
 <body>
 
 <div class="card">
+
+    <!-- hidden until YES -->
+    <div id="coupleName" class="couple">Aksh ❤️ Nisha</div>
+
     <h1 id="question">Will you be my Valentine? ❤️</h1>
 
     <button id="yesBtn">Yes 😍</button>
     <button id="noBtn">No 😢</button>
 
-    <div id="msg" class="message">Yayyy!! I love you sooo much ❤️</div>
+    <div id="msg" class="message">Forever Together ❤️</div>
 
-    <!-- cute kiss animation gif -->
-    <img id="kissGif"
-         class="kiss"
-         src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
-         alt="kiss">
+    <img id="kissGif" class="kiss"
+         src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif">
 </div>
+
+<!-- background music -->
+<audio autoplay loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-love.mp3">
+</audio>
 
 <script>
 const noBtn = document.getElementById("noBtn");
 const yesBtn = document.getElementById("yesBtn");
-const msg = document.getElementById("msg");
 const question = document.getElementById("question");
+const msg = document.getElementById("msg");
 const kissGif = document.getElementById("kissGif");
+const coupleName = document.getElementById("coupleName");
 
 let noCount = 0;
 
@@ -128,12 +127,10 @@ const funnyTexts = [
     "Are you sure? 🥺",
     "Think again 😭",
     "Please don't say no 💔",
-    "Don't break my heart 😢",
-    "Last chance 😤",
-    "You can't escape 😂"
+    "Last chance 😤"
 ];
 
-/* ---------------- MOVE BUTTON ---------------- */
+/* move no button */
 function moveButton(){
     const maxX = window.innerWidth - noBtn.offsetWidth;
     const maxY = window.innerHeight - noBtn.offsetHeight;
@@ -142,7 +139,6 @@ function moveButton(){
     noBtn.style.top  = Math.random()*maxY + "px";
 }
 
-/* Desktop hover escape */
 document.addEventListener("mousemove",(e)=>{
     const rect = noBtn.getBoundingClientRect();
     const dist = Math.abs(e.clientX-rect.left)+Math.abs(e.clientY-rect.top);
@@ -150,34 +146,46 @@ document.addEventListener("mousemove",(e)=>{
     if(dist < 120) moveButton();
 });
 
-/* Mobile click escape + change text */
 noBtn.addEventListener("click",(e)=>{
     e.preventDefault();
-    question.innerText = funnyTexts[noCount % funnyTexts.length];
-    noCount++;
-    moveButton();
+
+    if(noCount < funnyTexts.length){
+        question.innerText = funnyTexts[noCount];
+        noCount++;
+        moveButton();
+    } else {
+        autoYes();
+    }
 });
 
-/* ---------------- YES CLICK ---------------- */
-yesBtn.addEventListener("click",()=>{
+/* YES click */
+yesBtn.addEventListener("click", autoYes);
+
+
+/* AFTER YES */
+function autoYes(){
+
+    question.innerText = "She said YES ❤️";
+
+    coupleName.style.display="block";  // 👈 show now only
     msg.style.display="block";
     kissGif.style.display="block";
 
+    yesBtn.style.display="none";
+    noBtn.style.display="none";
+
     startHearts();
-});
+}
 
-/* ---------------- HEART ANIMATION ---------------- */
+/* heart rain */
 function createHeart(){
-    const heart = document.createElement("div");
-    heart.classList.add("heart");
-    heart.innerHTML = "❤️";
-
-    heart.style.left = Math.random()*100+"vw";
-    heart.style.fontSize = (Math.random()*20+15)+"px";
-    heart.style.animationDuration = (Math.random()*3+2)+"s";
-
+    const heart=document.createElement("div");
+    heart.className="heart";
+    heart.innerHTML="❤️";
+    heart.style.left=Math.random()*100+"vw";
+    heart.style.fontSize=(Math.random()*20+15)+"px";
+    heart.style.animationDuration=(Math.random()*3+2)+"s";
     document.body.appendChild(heart);
-
     setTimeout(()=>heart.remove(),5000);
 }
 
@@ -185,9 +193,9 @@ function startHearts(){
     setInterval(createHeart,150);
 }
 
-/* initial */
 moveButton();
 </script>
 
 </body>
 </html>
+
