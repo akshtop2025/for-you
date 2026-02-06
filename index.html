@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Be My Valentine ❤️</title>
+<title>Aksh ❤️ Nisha</title>
 
 <style>
-/* ---------------- BODY ---------------- */
 body{
     margin:0;
     height:100vh;
@@ -19,7 +18,7 @@ body{
     text-align:center;
 }
 
-/* ---------------- CARD ---------------- */
+/* card */
 .card{
     background:#fff;
     padding:50px;
@@ -28,23 +27,21 @@ body{
     position:relative;
 }
 
-/* ---------------- COUPLE NAME ---------------- */
+/* couple name */
 .couple{
     display:none;
     font-size:34px;
     font-weight:bold;
     color:#ff4d6d;
     margin-bottom:15px;
-    animation: pop 1s ease;
+    animation:pop 1s ease;
 }
-
 @keyframes pop{
     0%{transform:scale(0);opacity:0}
-    60%{transform:scale(1.3)}
     100%{transform:scale(1);opacity:1}
 }
 
-/* ---------------- BUTTONS ---------------- */
+/* buttons */
 button{
     padding:12px 32px;
     border:none;
@@ -57,7 +54,7 @@ button{
 #yesBtn{
     background:#e91e63;
     color:#fff;
-    transition:transform .3s ease;
+    transition:transform .25s ease;
 }
 
 #noBtn{
@@ -66,7 +63,7 @@ button{
     position:fixed;
 }
 
-/* ---------------- SHAKE ---------------- */
+/* shake */
 @keyframes shake{
     0%{transform:translateX(0)}
     25%{transform:translateX(-4px)}
@@ -74,53 +71,42 @@ button{
     75%{transform:translateX(-4px)}
     100%{transform:translateX(0)}
 }
+.shake{animation:shake .3s}
 
-.shake{
-    animation:shake .3s;
-}
-
-/* ---------------- MESSAGE ---------------- */
-.message{
-    display:none;
-    font-size:22px;
-    color:#e91e63;
-    margin-top:10px;
-}
-
-.kiss{
-    width:180px;
-    display:none;
-    margin-top:10px;
-}
-
-/* ---------------- HEARTS ---------------- */
+/* hearts */
 .heart{
     position:fixed;
-    animation: fall linear forwards;
+    animation:fall linear forwards;
 }
-
 @keyframes fall{
-    to{
-        transform:translateY(110vh);
-        opacity:0;
-    }
+    to{transform:translateY(110vh);opacity:0}
 }
 
-/* ---------------- CONFETTI ---------------- */
+/* confetti */
 .confetti{
     position:fixed;
     width:10px;
     height:10px;
-    top:-10px;
-    animation: confettiFall linear forwards;
+    animation:fall linear forwards;
 }
 
-@keyframes confettiFall{
+/* fireworks */
+.fire{
+    position:fixed;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    animation:firework 1s ease-out forwards;
+}
+@keyframes firework{
     to{
-        transform:translateY(110vh) rotate(720deg);
+        transform:translate(var(--x),var(--y));
         opacity:0;
     }
 }
+
+.message{display:none;margin-top:10px;color:#e91e63}
+.kiss{width:180px;display:none;margin-top:10px}
 </style>
 </head>
 
@@ -141,9 +127,9 @@ button{
          src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif">
 </div>
 
-<!-- Romantic music -->
+<!-- romantic music -->
 <audio autoplay loop>
-    <source src="https://www.bensound.com/bensound-music/bensound-love.mp3" type="audio/mpeg">
+    <source src="https://www.bensound.com/bensound-music/bensound-love.mp3">
 </audio>
 
 <script>
@@ -165,51 +151,44 @@ const funnyTexts = [
     "You can't say NO 😆"
 ];
 
-
-/* ---------------- MOVE NO BUTTON ---------------- */
+/* move NO button */
 function moveButton(){
     const maxX = window.innerWidth - noBtn.offsetWidth;
     const maxY = window.innerHeight - noBtn.offsetHeight;
-
     noBtn.style.left = Math.random()*maxX + "px";
     noBtn.style.top  = Math.random()*maxY + "px";
 }
 
-document.addEventListener("mousemove",(e)=>{
-    const rect = noBtn.getBoundingClientRect();
-    const dist = Math.abs(e.clientX-rect.left)+Math.abs(e.clientY-rect.top);
+/* desktop hover escape */
+noBtn.addEventListener("mouseenter", moveButton);
 
-    if(dist < 120) moveButton();
-});
-
-
-/* ---------------- NO CLICK ---------------- */
-noBtn.addEventListener("click",(e)=>{
+/* NO click */
+noBtn.addEventListener("click", (e)=>{
     e.preventDefault();
 
-    if(noCount < funnyTexts.length){
-        question.innerText = funnyTexts[noCount];
-        noCount++;
-    } else {
-        autoYes();
-        return;
-    }
+    // change text immediately
+    question.innerText = funnyTexts[noCount] || "";
 
-    moveButton();
-
-    yesScale += 0.25;
+    // YES grows VERY FAST (10x)
+    yesScale = Math.min(yesScale + 2.5, 6);
     yesBtn.style.transform = `scale(${yesScale})`;
 
+    // shake YES
     yesBtn.classList.add("shake");
-    setTimeout(()=> yesBtn.classList.remove("shake"), 300);
+    setTimeout(()=>yesBtn.classList.remove("shake"),300);
+
+    noCount++;
+
+    if(noCount > funnyTexts.length){
+        autoYes();
+    } else {
+        moveButton();
+    }
 });
 
-
-/* ---------------- YES CLICK ---------------- */
+/* YES click */
 yesBtn.addEventListener("click", autoYes);
 
-
-/* ---------------- AFTER YES ---------------- */
 function autoYes(){
     question.innerText = "She said YES ❤️";
 
@@ -222,46 +201,53 @@ function autoYes(){
 
     startHearts();
     startConfetti();
+    startFireworks();
 }
 
-
-/* ---------------- HEART RAIN ---------------- */
-function createHeart(){
-    const heart=document.createElement("div");
-    heart.className="heart";
-    heart.innerHTML="❤️";
-    heart.style.left=Math.random()*100+"vw";
-    heart.style.fontSize=(Math.random()*20+15)+"px";
-    heart.style.animationDuration=(Math.random()*3+2)+"s";
-
-    document.body.appendChild(heart);
-    setTimeout(()=>heart.remove(),5000);
-}
-
+/* hearts */
 function startHearts(){
-    setInterval(createHeart,150);
+    setInterval(()=>{
+        const h=document.createElement("div");
+        h.className="heart";
+        h.innerHTML="❤️";
+        h.style.left=Math.random()*100+"vw";
+        h.style.fontSize=(Math.random()*20+15)+"px";
+        h.style.animationDuration=(Math.random()*3+2)+"s";
+        document.body.appendChild(h);
+        setTimeout(()=>h.remove(),4000);
+    },150);
 }
 
-
-/* ---------------- CONFETTI ---------------- */
-function createConfetti(){
-    const c=document.createElement("div");
-    c.className="confetti";
-
-    const colors=["#ff4d6d","#ffcc00","#4dd2ff","#7cff7c","#ff8cf0"];
-    c.style.background = colors[Math.floor(Math.random()*colors.length)];
-
-    c.style.left=Math.random()*100+"vw";
-    c.style.animationDuration=(Math.random()*3+2)+"s";
-
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),5000);
-}
-
+/* confetti */
 function startConfetti(){
     for(let i=0;i<120;i++){
-        setTimeout(createConfetti,i*15);
+        const c=document.createElement("div");
+        c.className="confetti";
+        c.style.left=Math.random()*100+"vw";
+        c.style.background=`hsl(${Math.random()*360},80%,60%)`;
+        c.style.animationDuration=(Math.random()*3+2)+"s";
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(),4000);
     }
+}
+
+/* fireworks */
+function startFireworks(){
+    setInterval(()=>{
+        for(let i=0;i<40;i++){
+            const f=document.createElement("div");
+            f.className="fire";
+            f.style.background=`hsl(${Math.random()*360},100%,60%)`;
+            f.style.left="50vw";
+            f.style.top="50vh";
+
+            f.style.setProperty("--x",(Math.random()-0.5)*400+"px");
+            f.style.setProperty("--y",(Math.random()-0.5)*400+"px");
+
+            document.body.appendChild(f);
+            setTimeout(()=>f.remove(),1000);
+        }
+    },1200);
 }
 
 moveButton();
