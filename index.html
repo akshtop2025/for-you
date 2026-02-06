@@ -131,7 +131,6 @@ button{
 <audio autoplay loop>
     <source src="https://www.bensound.com/bensound-music/bensound-love.mp3">
 </audio>
-
 <script>
 const noBtn = document.getElementById("noBtn");
 const yesBtn = document.getElementById("yesBtn");
@@ -159,17 +158,17 @@ function moveButton(){
     noBtn.style.top  = Math.random()*maxY + "px";
 }
 
-/* desktop hover escape */
+/* desktop hover */
 noBtn.addEventListener("mouseenter", moveButton);
 
-/* NO click */
-noBtn.addEventListener("click", (e)=>{
+/* 🔥 MAIN FIX: pointerdown works for mouse + touch */
+noBtn.addEventListener("pointerdown", (e)=>{
     e.preventDefault();
 
-    // change text immediately
+    // ✅ CHANGE TEXT IMMEDIATELY (mobile + desktop)
     question.innerText = funnyTexts[noCount] || "";
 
-    // YES grows VERY FAST (10x)
+    // YES grows VERY FAST
     yesScale = Math.min(yesScale + 2.5, 6);
     yesBtn.style.transform = `scale(${yesScale})`;
 
@@ -182,9 +181,13 @@ noBtn.addEventListener("click", (e)=>{
     if(noCount > funnyTexts.length){
         autoYes();
     } else {
-        moveButton();
+        // move AFTER text update
+        setTimeout(moveButton, 50);
     }
 });
+
+/* disable normal click (avoid double fire) */
+noBtn.addEventListener("click", e => e.preventDefault());
 
 /* YES click */
 yesBtn.addEventListener("click", autoYes);
@@ -250,8 +253,10 @@ function startFireworks(){
     },1200);
 }
 
+/* init */
 moveButton();
 </script>
+
 
 </body>
 </html>
